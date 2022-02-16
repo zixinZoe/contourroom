@@ -66,7 +66,7 @@ function validInput(){
             return xhr;
         }
 
-        const url = "http://localhost:8081/path?"+input;
+        const url = "https://localhost:8081/path?"+input;
         var http = createCORSRequest("get", url);
         // console.log(url)
         contour_map = document.getElementById('contour');
