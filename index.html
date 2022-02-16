@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- <link rel="stylesheet" type=“text/css“ href="contourweb.css"> -->
+		<title>Accuracy Similation for Anchor Selection</title>
+		<script src="plotly-2.8.3.min.js"></script>
+	</head>
+	<body>
+		<div id = "container">  
+            <!-- <label id="instruction" style="margin-left:100px;position:relative;font-size: 20px;">let us know your room size and anchor locations</label> -->
+			<!-- <div id = "userinput">
+				<input style = "padding: 10px;margin-left: 230px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. anchorLoc=1500,1500;1500,2500;2500,1500;2500,2500&roomSize=4000*4000&gradient=0;3000;100&sampleDistance=200&maxErrShown=10000&iniSeed=roomCenter/origin/custom&customSeed=20,20&dop=all/best" id="line" name="input">
+			</div> -->
+			<div id="title">
+				<label id="instruction" style="font-size: 20px;">Customized your settings below: (all inputs use unit millimeter)</label>
+			</div>
+
+			<div id = "anchor" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 40px;">Anchor Locations in format:“x0,y0;x1,y1;x2,y2;x4,y4",where(x0,y0) is the coordinates for initiator and the follows are coordinates for responders.</label>
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 1500,1500;1500,2500;2500,1500;2500,2500" id="anchorloc" name="anchorloc">
+			</div>
+
+			<div id = "room" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Room Size in format:“width*height".</label>
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 4000*4000" id="roomsize" name="roomsize">	
+			</div>
+
+			<div id = "grad" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Gradient in format:“start;end;step". Specifies the error step between contour lines.</label>
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 0;3000;100" id="gradient" name="gradient">	
+			</div>
+
+			<div id = "sampledis" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Sample Distance. Specifies the distance between each sample point.</label>	
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 200" id="sampledistance" name="sampledistance">
+			</div>
+
+			<div id = "maxerr" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Max Error Shown. All errors larger than this will be rounded down to max value.</label>	
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 10000" id="maxerrshown" name="maxerrshown">
+			</div>
+
+			<div id = "ini" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Initial Seed passed to tag solver. Can be : roomCenter/origin/custom. </label>	
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. origin/roomCenter/custom" id="iniseed" name="iniseed">
+			</div>
+
+			<div id = "cusini" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">If you choose 'custom', Customize Initial Seed here. Format: "x,y".</label>	
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 20,20" id="customseed" name="customseed">
+			</div>
+
+			<div id = "dopp" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Compute with all input anchors for 100 times with Gaussian noises added and get median erros("all"), or compute with best anchor combination with lowest dilusion of precision("best").</label>	
+				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. all/best" id="dop" name="dop">
+			</div>		
+													  
+			<div id = "button" style="margin-left:700px;margin-top:20px;margin-top: 20px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;">(please allow around 2min of calculation time)</label>	
+				<button type="button" id="prevBtn" onclick="validInput()">apply</button>
+			</div>
+
+			<div class = "graphwrapper" style="position: relative;margin-top: 50px;">	 
+				<!-- <canvas class = "overlaygraph" id="canvas" alt="" style="height: 300px;width: 300px;background-color:powderblue;position: absolute; top: 0; left: 0;"></canvas> -->
+		     	<!-- <div class="overlaygraph" alt="" style="height: 300px;width: 300px;background-color: lightblue;position: absolute; top: 0; left: 0;" id = "map"></div> -->
+				<div class="overlaygraph" alt="" id="contour" style="width:500px;height:500px;position: absolute; top: 0; left: 0;"></div>
+				<canvas class = "overlaygraph" id="canvas" alt="" style="height: 320px;width: 335px;margin-top: 100px;margin-left:80px;position: absolute; top: 0; left: 0;"></canvas>
+			</div>
+		</div>
+		<script data-main="scripts/app.js" src="node_modules/requirejs/require.js"></script>
+	</body>
+	<!-- <script type="text/javascript" src="app.js"></script> -->
+</html>
