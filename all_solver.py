@@ -9,13 +9,13 @@ def calc_combo(locs,D_complete,estX,estY):
     # estimation = [0,0]
     # estimation = [width//2,height//2]
     zero_coor = [-1,-1]
-    print('estimation: ',estimation)
+    # print('estimation: ',estimation)
     tag_candidate  = tag_solver(estimation,[DDoA,locs,zero_coor])
     # print('tag_can2: ',tag_candidates)
     return tag_candidate
 
 def NSDI_read_TDoA_new(line):
-#“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop” 
+#“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop@sigma” 
     parts = line.split("@")
     # print('parts0: ',parts[0])
     read_locs = parts[0].split(";")
@@ -44,9 +44,9 @@ def NSDI_read_TDoA_new(line):
     seed_choice = parts[3]
     if seed_choice == "rmctr":
         estX = width//2
-        print('estX: ',estX)
+        # print('estX: ',estX)
         estY = height//2
-        print('estY: ',estY)
+        # print('estY: ',estY)
     else:
         est_coors = seed_choice.split(",")
         estX = int(est_coors[0])
@@ -54,16 +54,18 @@ def NSDI_read_TDoA_new(line):
 
     tdoas = []
     mu = 0
-    sigma = 50
+    sigma = int(parts[5])
+    count = int(parts[6])
+    # print('sigma: ',sigma)
     for read_tdoa in read_tdoas:
         noise_tdoa = []
-        noise = np.random.normal(mu, sigma,100)
-        for i in range(100):
+        noise = np.random.normal(mu, sigma,count)
+        for i in range(count):
             tdoa = int(float(read_tdoa))
             noise_tdoa.append(tdoa+noise[i])
         tdoas.append(noise_tdoa)
     tdoas = np.transpose(np.array(tdoas) )#100*respnum
-    print('tdoas: ',tdoas)
+    # print('tdoas: ',tdoas)
     tag_candidates = []
     for row in tdoas:
         if all(tdoa<100000 and tdoa>-100000 for tdoa in row):
@@ -73,7 +75,7 @@ def NSDI_read_TDoA_new(line):
                 D_complete[0,resp_index] = row[resp_index-1]
 
             tag_candidate = np.transpose(calc_combo(locs,D_complete,estX,estY))[0]
-            print("tag: ",tag_candidate)
+            # print("tag: ",tag_candidate)
         tag_candidates.append(tag_candidate)
     tag_candidates = np.array(tag_candidates)
     return tag_candidates
