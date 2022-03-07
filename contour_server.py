@@ -14,24 +14,26 @@ from server import MyServer
 import numpy as np
 import requests
 
-serverPort = 8081
+serverPort = 443
 class MyServer(CGIHTTPRequestHandler):
 
     def do_GET(self):
         try:
-#"e.g. anchorLoc=1500,1500;1500,2500;2500,1500;2500,2500&roomSize=4000*4000&gradient=0;3000;100&sampleDistance=200&maxErrShown=10000&iniSeed=roomCenter/origin/custom&customSeed=20,20&dop=all/best"
+#"e.g. anchorLoc=1500,1500;1500,2500;2500,1500;2500,2500&roomSize=4000*4000&gradient=0;3000;100&sampleDistance=200&sigma=50&maxErrShown=10000&iniSeed=roomCenter/origin/custom&customSeed=20,20&dop=all/best&count=50"
             # print('gethere')
             # c = 299792458
             anchors = ""
             tdoalist = []
             locs = np.zeros((20,2))
-            mu, sigma = 0, 100
+            # mu, sigma = 0, 100
             respNum = 0
             xs = []
             ys = []
             sample_distance = 0
             error_matrix = []
             errlimit = 0
+            sigma = 0
+            count = 0
             seed = ""
             seed_choice = ""
             parsed_url = urlparse(self.path)
@@ -87,60 +89,68 @@ class MyServer(CGIHTTPRequestHandler):
                     seed_choice = "0,0"
                 if seed == "roomCenter":
                     seed_choice = "rmctr"
-                    print('seed_choice: ',seed_choice)
+                    # print('seed_choice: ',seed_choice)
                 if seed == "custom":
                     if parse_qs(parsed_url.query)['customSeed'] : # read room size
                         seed_choice = parse_qs(parsed_url.query)['customSeed'][0]
             if parse_qs(parsed_url.query)['dop'] : # read room size
                 dop = parse_qs(parsed_url.query)['dop'][0]
+            if parse_qs(parsed_url.query)['sigma'] : # read anchor locations
+                sigma = parse_qs(parsed_url.query)['sigma'][0]
+            if parse_qs(parsed_url.query)['count'] : # read room size
+                count = parse_qs(parsed_url.query)['count'][0]
 
             index = 0
             for tdoa in tdoalist:
                 # for i in range(100):
                 #     noise = np.random.normal(mu, sigma)
                 #     tdoa = tdoa + noise
-                line = anchors+"@"+tdoa+"@"+room+"@"+seed_choice+"@"+dop+";"
-                #“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop” 
+                line = anchors+"@"+tdoa+"@"+room+"@"+seed_choice+"@"+dop+"@"+sigma+"@"+count+";"
+                #“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop@sigma@count” 
                 curUrl = "http://localhost:8080/path"
-                print("line: ",line)
+                # print("line: ",line)
                 PARAMS = {"line":line}
                 tag_candidates = json.loads(requests.get(url = curUrl,params=PARAMS).text)
-                print('deserialized: ',tag_candidates)
+                # print('deserialized: ',tag_candidates)
                 errors = []
                 error = None
                 for tag in tag_candidates:
-                    print('tag: ',tag)
+                    # print('tag: ',tag)
                     if tag != "":
                         x = tag[0]
                         y = tag[1]
                         error = math.sqrt((x-xs[index])**2+(y-ys[(index+1) % len(ys)-1])**2)
+                        # print('error: ',error)
                         errors.append(error)
                     else:
-                        print('tag == ""')
+                        # print('tag == ""')
                         errors.append(errlimit) #if no result, set error as limit
                 median_error = statistics.median(errors)
                 print("median error: ",median_error)
+                print('errlimit: ',errlimit)
                 if median_error <=errlimit:
-                    error_matrix.append(median_error)
+                    error_matrix.append(median_error/1000)
                     index = index + 1
                 else:
-                    error_matrix.append(errlimit)
+                    error_matrix.append(errlimit/1000)
                     index = index +1
+                print("errormatrix: ",error_matrix)
             # if len(error_matrix)<(int(roomX/200)*int(roomY/200)):
             #     error_matrix.append(0)
-            print('error_matrixgot')
-            print('error_matrixshape: ',np.array(error_matrix).shape)
+            # print('error_matrixgot')
+            # print('error_matrixshape: ',np.array(error_matrix).shape)
             # print('x: ',int((roomX+1)//200))
             # print('y; ',int((roomY+1)//200))
             error_matrix = np.array(error_matrix).reshape((int((roomX+1)//sample_distance+1),int((roomY+1)//sample_distance)+1))
-            print('shape error_matrix: ',error_matrix.shape)
+            # print('shape error_matrix: ',error_matrix.shape)
+            print('error matrix: ',error_matrix)
             self.send_response(200)
             # self.send_header("Content-type", "text/html")
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             serialized = json.dumps(np.transpose(error_matrix).tolist())
             # print("serialized: ",serialized)
-            print("serialized")
+            # print("serialized")
             self.wfile.write(bytes(serialized,'utf-8'))
             print('sent')
             #create a GET request to generic_server.py here
