@@ -4,6 +4,7 @@
 		<!-- <link rel="stylesheet" type=“text/css“ href="contourweb.css"> -->
 		<title>Accuracy Similation for Anchor Selection</title>
 		<script src="plotly-2.8.3.min.js"></script>
+		<!-- <script src="indoorbackend/plotly-2.8.3.min.js"></script> -->
 	</head>
 	<body>
 		<div id = "container">  
@@ -12,61 +13,111 @@
 				<input style = "padding: 10px;margin-left: 230px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. anchorLoc=1500,1500;1500,2500;2500,1500;2500,2500&roomSize=4000*4000&gradient=0;3000;100&sampleDistance=200&maxErrShown=10000&iniSeed=roomCenter/origin/custom&customSeed=20,20&dop=all/best" id="line" name="input">
 			</div> -->
-			<div id="title">
-				<label id="instruction" style="font-size: 20px;">Customized your settings below: (all inputs use unit millimeter)</label>
+			<div id="title" onmouseover="change()">
+				<label id="instruction" style="font-size: 30px;">Customized your settings below: </label>
+				<label id="instruction" style="font-size: 15px;">(All inputs use unit millimeter. Graph uses unit meter)</label>
 			</div>
 
-			<div id = "anchor" style = "margin-top: 30px;">
-				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 40px;">Anchor Locations in format:“x0,y0;x1,y1;x2,y2;x4,y4",where(x0,y0) is the coordinates for initiator and the follows are coordinates for responders.</label>
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+			<div id="readme">
+				<a href="readme.pdf" style="font-size: 20px">Read Me First</a>
+				<!-- <a href="indoorbackend/readme.pdf" style="font-size: 20px">Read Me First</a> -->
+			</div>
+
+			<div onmouseover="change()">
+				<img src="gtlogo.png" alt="gt_logo" onmouseover="change()" style="width:250px; float:right">
+				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
+			</div>
+
+			<div class="dropdown" onmouseover="change()" style="margin-top: 30px">
+				<label id="instruction" style="font-size: 20px;">Example Inputs: </label>
+
+				<select name="ex_inputs" id="ex_inputs">
+						<option value="ss" id="ss">Small Square</option>
+						<option value="sr" id="sr">Small Rectangular</option>
+						<option value="ls" id="ls">Large Square</option>
+						<option value="lr" id="lr">Large Rectangular</option>
+						<option value="ct">Custom</option>
+					<!-- </div> -->
+				</select>
+			</div>
+
+			<div id = "anchor" style = "margin-top: 30px;" onmouseover="change()">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 40px;">Anchor Locations in format:"x0,y0;x1,y1;x2,y2;x4,y4",where(x0,y0) is the coordinates for initiator and the follows are coordinates for responders.</label>
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 1500,1500;1500,2500;2500,1500;2500,2500" id="anchorloc" name="anchorloc">
 			</div>
 
-			<div id = "room" style = "margin-top: 30px;">
-				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Room Size in format:“width*height".</label>
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+			<div id = "room" style = "margin-top: 30px;" onmouseover="change()">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Room Size in format:"width*height".</label>
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 4000*4000" id="roomsize" name="roomsize">	
 			</div>
 
-			<div id = "grad" style = "margin-top: 30px;">
+			<!-- <div id = "grad" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Gradient in format:“start;end;step". Specifies the error step between contour lines.</label>
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 0;3000;100" id="gradient" name="gradient">	
-			</div>
+			</div> -->
 
 			<div id = "sampledis" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Sample Distance. Specifies the distance between each sample point.</label>	
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 200" id="sampledistance" name="sampledistance">
+			</div>
+
+			<div id = "sig" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Sigma of Gaussian noise added to TDoA.</label>	
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 50" id="sigma" name="sigma">
 			</div>
 
 			<div id = "maxerr" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Max Error Shown. All errors larger than this will be rounded down to max value.</label>	
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 10000" id="maxerrshown" name="maxerrshown">
 			</div>
 
 			<div id = "ini" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Initial Seed passed to tag solver. Can be : roomCenter/origin/custom. </label>	
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. origin/roomCenter/custom" id="iniseed" name="iniseed">
 			</div>
 
 			<div id = "cusini" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">If you choose 'custom', Customize Initial Seed here. Format: "x,y".</label>	
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 20,20" id="customseed" name="customseed">
 			</div>
 
 			<div id = "dopp" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Compute with all input anchors for 100 times with Gaussian noises added and get median erros("all"), or compute with best anchor combination with lowest dilusion of precision("best").</label>	
-				<input style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. all/best" id="dop" name="dop">
-			</div>		
+			</div>	
+			
+			<div id = "cnt" style = "margin-top: 30px;">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Number of times each sample will be run with random Gaussian noise(our result takes median error value).</label>	
+				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
+					placeholder="e.g. 50" id="count" name="count">
+			</div>	
 													  
 			<div id = "button" style="margin-left:700px;margin-top:20px;margin-top: 20px;">
-				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;">(please allow around 2min of calculation time)</label>	
-				<button type="button" id="prevBtn" onclick="validInput()">apply</button>
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;">(please allow a few minutes of calculation time)</label>	
+				<!-- <script>
+					document.addEventListener("DOMContentLoaded", function(event) {
+						document.getElementById("btn").disabled = false;
+						console.log("set btn to false");
+					  });
+					</script> -->
+				<button type="button" id="btn" onclick="validInput()">apply</button>
+			</div>
+
+			<div style="margin-top: 20px;">
+				<label id="instruction" style="font-size: 20px;">We are customizing your contour map: </label>
+				<div id='meter' style = "border:1px solid #000;width:100px;">
+					<div id='progress' style = "background:#333;height:10px;width:0%;display:block;">
+					</div>
+				</div>
 			</div>
 
 			<div class = "graphwrapper" style="position: relative;margin-top: 50px;">	 
@@ -75,8 +126,17 @@
 				<div class="overlaygraph" alt="" id="contour" style="width:500px;height:500px;position: absolute; top: 0; left: 0;"></div>
 				<canvas class = "overlaygraph" id="canvas" alt="" style="height: 320px;width: 335px;margin-top: 100px;margin-left:80px;position: absolute; top: 0; left: 0;"></canvas>
 			</div>
+
+			<div style="margin-top: 600px;">
+				<label id="instruction" style="font-size: 20px;">If you find this website helpful, please cite to show support:</label>
+			</div>
+			<div>
+				<label id="citation" style="font-size: 20px;">Zixin Yin, Haige Chen, Ashutosh Dhekne, "Dilution of Precision(DoP) based Simulation for Indoor Anchor Deployment”, "indoorloc-sim.cc.gatech.edu", 2022</label>
+			</div>
+
 		</div>
-		<script data-main="scripts/app.js" src="node_modules/requirejs/require.js"></script>
+		<script type="text/javascript" src="scripts/app.js"></script>
+		<!-- <script type="text/javascript" src="indoorbackend/scripts/app.js"></script> -->
 	</body>
 	<!-- <script type="text/javascript" src="app.js"></script> -->
 </html>
