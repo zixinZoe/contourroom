@@ -14,7 +14,7 @@ class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            #“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop;”
+            #“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop@sigma@count;”
             parsed_url = urlparse(self.path)
             if parse_qs(parsed_url.query)['line'] :
                 if parse_qs(parsed_url.query)['line'][0]:
@@ -28,13 +28,13 @@ class MyServer(BaseHTTPRequestHandler):
                         dop = parts[4]
                         if dop == "all":
                             tag_candidates = all_solver.NSDI_read_TDoA_new(line)
-                            print('all anchors used')
+                            # print('all anchors used')
                         if dop == "best":
                             tag_candidates = best_solver.NSDI_read_TDoA_new(line)
-                            print('best anchors used')
+                            # print('best anchors used')
                         # print('tagLoc: ',tagLoc)
                         # print("tagLoc: ",tagLoc)
-                        print('tag_candidates shape: ',tag_candidates.shape)
+                        # print('tag_candidates shape: ',tag_candidates.shape)
                         if len(tag_candidates[0]) == 2:
                             # return tagLoc
                             print('getshape2')
@@ -55,7 +55,7 @@ class MyServer(BaseHTTPRequestHandler):
                             self.send_header("Content-type", "text/html")
                             self.end_headers()
                             serialized = json.dumps([""])
-                            print('serialized created')
+                            # print('serialized created')
                             self.wfile.write(bytes(serialized, "utf-8"))
                             print('sent')
             else:
