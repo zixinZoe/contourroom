@@ -164,8 +164,8 @@ function validInput(){
         if(totalSeconds>=100) totalSeconds = 0;//go back
         // tb.text = shownProgress;// set the value of the text field     
         progress.style.width = totalSeconds+ "%";// set the width of the progress bar
-        console.log("totalseconds: ");
-        console.log(totalSeconds);
+        // console.log("totalseconds: ");
+        // console.log(totalSeconds);
     }
 
     // function increase(){ 
@@ -390,7 +390,7 @@ function validInput(){
                 // coloraxis:{colorbar: {dtick:0.1}},
             }
             Plotly.newPlot(contour_map, contour_data, layout);
-            console.log(data);
+            // console.log(data);
 
             // for (var i = 0; i< xs.length; i++){
             //     console.log('reach here')
