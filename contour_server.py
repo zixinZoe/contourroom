@@ -37,6 +37,7 @@ class MyServer(CGIHTTPRequestHandler):
             seed = ""
             seed_choice = ""
             parsed_url = urlparse(self.path)
+            # print("parsed_url: ",parsed_url)
             if parse_qs(parsed_url.query)['sampleDistance'] : # read anchor locations
                 sample_distance = parse_qs(parsed_url.query)['sampleDistance'][0]
                 sample_distance = int(sample_distance)
@@ -126,15 +127,15 @@ class MyServer(CGIHTTPRequestHandler):
                         # print('tag == ""')
                         errors.append(errlimit) #if no result, set error as limit
                 median_error = statistics.median(errors)
-                print("median error: ",median_error)
-                print('errlimit: ',errlimit)
+                # print("median error: ",median_error)
+                # print('errlimit: ',errlimit)
                 if median_error <=errlimit:
                     error_matrix.append(median_error/1000)
                     index = index + 1
                 else:
                     error_matrix.append(errlimit/1000)
                     index = index +1
-                print("errormatrix: ",error_matrix)
+                # print("errormatrix: ",error_matrix)
             # if len(error_matrix)<(int(roomX/200)*int(roomY/200)):
             #     error_matrix.append(0)
             # print('error_matrixgot')
@@ -143,7 +144,7 @@ class MyServer(CGIHTTPRequestHandler):
             # print('y; ',int((roomY+1)//200))
             error_matrix = np.array(error_matrix).reshape((int((roomX+1)//sample_distance+1),int((roomY+1)//sample_distance)+1))
             # print('shape error_matrix: ',error_matrix.shape)
-            print('error matrix: ',error_matrix)
+            # print('error matrix: ',error_matrix)
             self.send_response(200)
             # self.send_header("Content-type", "text/html")
             self.send_header('Access-Control-Allow-Origin', '*')
