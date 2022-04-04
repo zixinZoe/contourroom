@@ -7,13 +7,13 @@
 		<!-- <script src="indoorbackend/plotly-2.8.3.min.js"></script> -->
 	</head>
 	<body>
-		<div id = "container">  
+		<div id = "container" onmouseover="change()">  
             <!-- <label id="instruction" style="margin-left:100px;position:relative;font-size: 20px;">let us know your room size and anchor locations</label> -->
 			<!-- <div id = "userinput">
 				<input style = "padding: 10px;margin-left: 230px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. anchorLoc=1500,1500;1500,2500;2500,1500;2500,2500&roomSize=4000*4000&gradient=0;3000;100&sampleDistance=200&maxErrShown=10000&iniSeed=roomCenter/origin/custom&customSeed=20,20&dop=all/best" id="line" name="input">
 			</div> -->
-			<div id="title" onmouseover="change()">
+			<div id="title">
 				<label id="instruction" style="font-size: 30px;">Customized your settings below: </label>
 				<label id="instruction" style="font-size: 15px;">(All inputs use unit millimeter. Graph uses unit meter)</label>
 			</div>
@@ -23,12 +23,12 @@
 				<!-- <a href="indoorbackend/readme.pdf" style="font-size: 20px">Read Me First</a> -->
 			</div>
 
-			<div onmouseover="change()">
-				<img src="gtlogo.png" alt="gt_logo" onmouseover="change()" style="width:250px; float:right">
+			<div >
+				<img src="gtlogo.png" alt="gt_logo" style="width:250px; float:right">
 				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
 			</div>
 
-			<div class="dropdown" onmouseover="change()" style="margin-top: 30px">
+			<div class="dropdown" style="margin-top: 30px">
 				<label id="instruction" style="font-size: 20px;">Example Inputs: </label>
 
 				<select name="ex_inputs" id="ex_inputs">
@@ -41,13 +41,45 @@
 				</select>
 			</div>
 
-			<div id = "anchor" style = "margin-top: 30px;" onmouseover="change()">
+			<div  style="margin-top:30px">
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Small Square:</label>
+			</div>
+			<div >
+				<img src="ss.png" alt="ss" onmouseover="change()" style="width:250px;">
+				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
+			</div>
+
+			<div >
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Small Rectangular:</label>
+			</div>
+			<div>
+				<img src="sr.png" alt="sr"  style="width:250px;">
+				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
+			</div>
+
+			<div >
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Large Square:</label>
+			</div>
+			<div >
+				<img src="ls.png" alt="ls"  style="width:250px;">
+				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
+			</div>
+
+			<div >
+				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Large Rectangular:</label>
+			</div>
+			<div >
+				<img src="lr.png" alt="lr"  style="width:250px;">
+				<!-- <img src="indoorbackend/gtlogo.png" alt="gt_logo" style="width:250px; float:right"> -->
+			</div>
+
+			<div id = "anchor" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 40px;">Anchor Locations in format:"x0,y0;x1,y1;x2,y2;x4,y4",where(x0,y0) is the coordinates for initiator and the follows are coordinates for responders.</label>
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 1500,1500;1500,2500;2500,1500;2500,2500" id="anchorloc" name="anchorloc">
 			</div>
 
-			<div id = "room" style = "margin-top: 30px;" onmouseover="change()">
+			<div id = "room" style = "margin-top: 30px;">
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Room Size in format:"width*height".</label>
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 4000*4000" id="roomsize" name="roomsize">	
@@ -59,31 +91,31 @@
 					placeholder="e.g. 0;3000;100" id="gradient" name="gradient">	
 			</div> -->
 
-			<div id = "sampledis" style = "margin-top: 30px;">
+			<div id = "sampledis" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Sample Distance. Specifies the distance between each sample point.</label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 200" id="sampledistance" name="sampledistance">
 			</div>
 
-			<div id = "sig" style = "margin-top: 30px;">
+			<div id = "sig" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Sigma of Gaussian noise added to TDoA.</label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 50" id="sigma" name="sigma">
 			</div>
 
-			<div id = "maxerr" style = "margin-top: 30px;">
+			<div id = "maxerr" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Max Error Shown. All errors larger than this will be rounded down to max value.</label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 10000" id="maxerrshown" name="maxerrshown">
 			</div>
 
-			<div id = "ini" style = "margin-top: 30px;">
+			<div id = "ini" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Initial Seed passed to tag solver. Can be : roomCenter/origin/custom. </label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. origin/roomCenter/custom" id="iniseed" name="iniseed">
 			</div>
 
-			<div id = "cusini" style = "margin-top: 30px;">
+			<div id = "cusini" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">If you choose 'custom', Customize Initial Seed here. Format: "x,y".</label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 20,20" id="customseed" name="customseed">
@@ -95,13 +127,13 @@
 					placeholder="e.g. all/best" id="dop" name="dop">
 			</div>	
 			
-			<div id = "cnt" style = "margin-top: 30px;">
+			<div id = "cnt" style = "margin-top: 30px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;margin-top: 20px;">Number of times each sample will be run with random Gaussian noise(our result takes median error value).</label>	
 				<input type="text" style = "padding: 10px;width: 500px;font-size: 17px;font-family: Raleway;border: 1px solid #aaaaaa;" 
 					placeholder="e.g. 50" id="count" name="count">
 			</div>	
 													  
-			<div id = "button" style="margin-left:700px;margin-top:20px;margin-top: 20px;">
+			<div id = "button" style="margin-left:700px;margin-top:20px;margin-top: 20px;" >
 				<label id="sub-instruction" style="padding-top: 1.5em;font-size: 20px;">(please allow a few minutes of calculation time)</label>	
 				<!-- <script>
 					document.addEventListener("DOMContentLoaded", function(event) {
@@ -112,7 +144,7 @@
 				<button type="button" id="btn" onclick="validInput()">apply</button>
 			</div>
 
-			<div style="margin-top: 20px;">
+			<div style="margin-top: 20px;" >
 				<label id="instruction" style="font-size: 20px;">We are customizing your contour map: </label>
 				<div id='meter' style = "border:1px solid #000;width:100px;">
 					<div id='progress' style = "background:#333;height:10px;width:0%;display:block;">
@@ -120,18 +152,18 @@
 				</div>
 			</div>
 
-			<div style="margin-top: 20px;">
+			<div style="margin-top: 20px;" >
 				<label style="font-size:15px;">(If your result is a plain grey graph, then every error value exceeds the maximum threshold.)</label>
 			</div>
 
-			<div class = "graphwrapper" style="position: relative;margin-top: 50px;">	 
+			<div class = "graphwrapper" style="position: relative;margin-top: 50px;" >	 
 				<!-- <canvas class = "overlaygraph" id="canvas" alt="" style="height: 300px;width: 300px;background-color:powderblue;position: absolute; top: 0; left: 0;"></canvas> -->
 		     	<!-- <div class="overlaygraph" alt="" style="height: 300px;width: 300px;background-color: lightblue;position: absolute; top: 0; left: 0;" id = "map"></div> -->
 				<div class="overlaygraph" alt="" id="contour" style="width:500px;height:500px;position: absolute; top: 0; left: 0;"></div>
 				<canvas class = "overlaygraph" id="canvas" alt="" style="height: 320px;width: 335px;margin-top: 100px;margin-left:80px;position: absolute; top: 0; left: 0;"></canvas>
 			</div>
 
-			<div style="margin-top: 600px;">
+			<div style="margin-top: 600px;" >
 				<label id="instruction" style="font-size: 20px;">If you find this website helpful, please cite to show support:</label>
 			</div>
 			<div>
