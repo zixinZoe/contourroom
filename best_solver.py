@@ -21,13 +21,16 @@ def create_combos(resp_coor,combos):
     num_of_resp = len(resp_coor[:,0])
     for num in range(2,num_of_resp+1):
         combo_num = np.empty(shape=[0,num],dtype = np.int8)
+        # combo_num = []
         for item in itertools.combinations(list(range(1,num_of_resp+1)),num):
             combo_num = np.append(combo_num,np.array([item]),axis=0)
+            # combo_num.append(item)
         combos.append(combo_num)
-    # print(combos)
+    # print("combos: ",combos)
+    # print("combosshape: ",np.array(combos).shape)
     return combos
 
-def calc_combo(combos,locs,D_complete,estX,estY,cnt,anchor_combo,tag_candidates,dop_current):
+def calc_combo(combos,locs,D_complete,estX,estY,cnt,anchor_combo,tag_candidates,dop_current,init_index,beacon_pos,r):
     for cur in range(0,len(combos)):
         if combos[cur].any():
             # print('combos[index]',combos[cur])
@@ -36,25 +39,30 @@ def calc_combo(combos,locs,D_complete,estX,estY,cnt,anchor_combo,tag_candidates,
                 # print("i: ",i)
                 # print('combos[cur][i]: ',combos[cur][i])
                 idx = combos[cur][i][:]
-                mask = np.zeros((len(locs[:,0]),len(locs[:,0]))) 
-                zero_coor = [-1,-1] #where ddoa is 0              
+                mask = np.zeros((len(locs[:,0]),len(locs[:,0])))
                 for resp in idx:
-                    mask[0,resp] = 1
-                    if D_complete[0,resp] == 0:
-                        zero_coor = [0,resp]
+                    mask[0,resp] = 1 
                 DDoA = np.multiply(mask,D_complete)
+                zero_coor = [[-1,-1]]
+                for id in range(len(DDoA[init_index])):
+                    if DDoA[init_index][id] == 0 and id != init_index:
+                        zero_coor.append([init_index,id])
                 estimation = [estX,estY]
                 # estimation = [1000,1000]
                 # print('init_coor: ',init_coor)
+                print("DDoA: ",DDoA)
                 
-                tag_candidates = np.append(tag_candidates, tag_solver(estimation,[DDoA,locs,zero_coor]),axis =1)
+                tag_candidates = np.append(tag_candidates, tag_solver(estimation,[DDoA,locs,zero_coor,beacon_pos,r]),axis =1)
                 # print('tag_can2: ',tag_candidates)
+                # print("before resplist")
                 RESP_LIST = [0]
                 for index in idx:
-                    RESP_LIST = np.append(RESP_LIST,index)
+                   RESP_LIST = np.append(RESP_LIST,index)
+                    # RESP_LIST.append(index)
                 dop_current = np.append(dop_current,GDOP(locs[RESP_LIST,:],tag_candidates.T[cnt,:]))
                 anchor_combo.append(RESP_LIST)
-    return [dop_current,tag_candidates]
+                # print("after resplist")
+    return [dop_current,tag_candidates,np.array(anchor_combo)]
 
 #input format: “x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04”
 #“x0,y0;x1,y1;x2,y2;x4,y4@TDoA01,TDoA02,TDoA04@roomwidth*roomheight@seed_choice@dop@sigma@count” 
@@ -77,10 +85,11 @@ def NSDI_read_TDoA_new(line):
             locs[num][0] = x
             locs[num][1] = y
             num = num+1
-
+        # print("locs: ",locs)
         init_coor = locs[0,:]
         resp_coor = locs[1:,:]
         read_tdoas = parts[1].split(";")
+        # print("read_tdoas: ",read_tdoas)
         # print("read_tdoas: ",read_tdoas)
         # tdoas = []
 
@@ -93,18 +102,31 @@ def NSDI_read_TDoA_new(line):
         #     tdoas.append(tdoa)
         tdoas = []
         mu = 0
-        sigma = int(parts[5])
+        sigma = float(parts[5])
         count = int(parts[6])
-        # print('sigma: ',sigma)
+        print('sigma: ',sigma)
+        if len(parts) == 9:
+            beacon_pos = parts[7].split(",")
+            # beacon_pos = float(beacon_pos)
+            # print("beacon_pos: ",beacon_pos)
+            r = float(parts[8])
+        else:
+            beacon_pos = ["",""]
+            r=0
+        # print("count: ",count)
         for read_tdoa in read_tdoas:
+            # print("gethere")
             noise_tdoa = []
-            noise = np.random.normal(mu, sigma,count)
             for i in range(count):
+                noise = np.random.normal(mu, sigma)
                 tdoa = int(float(read_tdoa))
-                noise_tdoa.append(tdoa+noise[i])
+                # print("tdoa: ",tdoa)
+                noise_tdoa.append(tdoa+noise)
+                # print("noise_tdoa: ",noise_tdoa)
             tdoas.append(noise_tdoa)
+            # print('tdoasshape: ',tdoas.shape)
         tdoas = np.transpose(np.array(tdoas) )#100*respnum
-        # print("tdoas: ",tdoas)
+        # print("tdoasshape: ",tdoas.shape)
         # print("resp_coor",resp_coor)
         room = parts[2].split("*")
         width = int(room[0])
@@ -139,15 +161,46 @@ def NSDI_read_TDoA_new(line):
                     cnt =0
                     anchor_combo = []
                     dop_current = []
+                    init_index = 0
                     combos = [] #list of combos of different sizes
+                    print("before creating combos")
                     combos = create_combos(resp_coor,combos)
-                    result = calc_combo(combos,locs,D_complete,estX,estY,cnt,anchor_combo,tag_cand,dop_current)
+                    print("before calculating combos")
+                    result = calc_combo(combos,locs,D_complete,estX,estY,cnt,anchor_combo,tag_cand,dop_current,init_index,beacon_pos,r)
                     # print("result: ",result)
                     dop_current = result[0]
                     tag_cand = result[1]
+                    anchor_combo = result[2]
+                    # print("combos: ",combos)
+                    # print("dop_current: ",dop_current)
+                    # print("tag_cand: ",tag_cand)
+                    # print("anchor_combo: ",anchor_combo)
+                    # with open('combos1', 'wb') as saveFile:
+                    #     for i in range(len(combos)):
+                    #         combos[i] = combos[i].tolist()
+                    #     combos_data = np.array(combos).tobytes()
+                    #     saveFile.write(combos_data)
+                    # with open('dop_current1', 'wb') as saveFile:
+                    #     dop_data = dop_current.tobytes()
+                    #     saveFile.write(dop_data)
+                    # with open('tag_cand1', 'wb') as saveFile:
+                    #     tag_cand_data = tag_cand.tobytes()
+                    #     saveFile.write(tag_cand_data)
+                    # with open('anchor_combo1', 'w') as saveFile:
+                    #     combos_list = []
+                    #     for an_combo in anchor_combo:
+                    #         # print("str(an_combo): ",str(an_combo))
+                    #         combo_string = "".join(str(an_combo))
+                    #         combos_list.append(combo_string)
+                    #     stored_combo = ";".join(combos_list)
+                    #     saveFile.write(stored_combo)
                     # print("tagcand: ", tag_cand)
                     min_dop_idx = np.where(dop_current == np.amin(dop_current))[0][0]
                     tagLoc = tag_cand[:,min_dop_idx]
+                    best_combo = anchor_combo[min_dop_idx]
+                    # with open("best_combos1","w") as saveFile:
+                    #     best_combo = "".join(str(best_combo))
+                    #     saveFile.write(best_combo)
                     # print("tagLocsolver: ",tagLoc)
                     tagLoc = np.reshape(np.array(tagLoc),((1,2)))
                     # serialized = json.dump(tagLoc)
